@@ -27,6 +27,7 @@ public class ViewController:UIViewController, UIScrollViewDelegate {
     var scrollMode:PhotoSliderControllerScrollMode = .None
     var scrollInitalized = false
     var closeAnimating = false
+    var imageViews = Array<PhotoSlider.ImageView>()
 
     public var delegate: PhotoSliderDelegate? = nil
     public var visiblePageControl = true
@@ -93,6 +94,8 @@ public class ViewController:UIViewController, UIScrollViewDelegate {
             self.scrollView.addSubview(imageView)
             imageView.loadImage(imageURL)
             frame.origin.x += width
+            
+            imageViews.append(imageView)
         }
         
         // Page Control
@@ -207,7 +210,17 @@ public class ViewController:UIViewController, UIScrollViewDelegate {
             scrollView.contentOffset = contentOffset
         }
         
+        // Save current page index.
+        var previousPage = self.pageControl.currentPage
+        
+        // Update current page index.
         self.generateCurrentPage()
+        
+        // If page index has changed - reset zoom scale for previous image.
+        if previousPage != self.pageControl.currentPage {
+            var imageView = imageViews[previousPage]
+            imageView.scrollView.zoomScale = imageView.scrollView.minimumZoomScale
+        }
     }
     
     func generateCurrentPage() {
